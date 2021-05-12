@@ -14,8 +14,8 @@ if(mysqli_num_rows($result) == 0){
     $rooli = "Admin";
 }
 
-$tulos = mysqli_query($conn, "INSERT INTO kayttajat (Kayttajanimi, Salasana, Kuva, Rooli)
-VALUES ('$kayttaja', '$kryptatty', 'kuva', '$rooli');");
+$tulos = mysqli_query($conn, "INSERT INTO kayttajat (Kayttajanimi, Salasana, Rooli)
+VALUES ('$kayttaja', '$kryptatty', '$rooli');");
 
 if($tulos === true){
     echo 1;

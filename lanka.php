@@ -23,7 +23,7 @@ if($_GET["id"] == null || $_GET["id"] == ""){
 <!doctype html>
 <html>
 <head>
-<title>tmForum - Valikko</title>
+<title>tmForum - <?php echo $lankanimi; ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/tyyli.css">
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
@@ -33,7 +33,7 @@ if($_GET["id"] == null || $_GET["id"] == ""){
     <div id="valikko">
         <ul>
             <li><a href="menu.php">Etusivu</a></li>
-            <li><a href="#">Profiili</a></li>
+            <li><a href="profiili.php">Profiili</a></li>
             <li style="float: right;"><a href="ulos.php">Kirjaudu ulos</a></li>
         </ul>
     </div>
@@ -48,6 +48,7 @@ if($_GET["id"] == null || $_GET["id"] == ""){
             while($row = mysqli_fetch_assoc($viestit)){
                 $date = date_create($row["PVM"]);
                 echo "<li><div class='lankaviesti'>
+                <img src='".$row["Kuva"]."' alt='Käyttäjän ".$row["Kayttajanimi"]." profiilikuva' />
                 <p class='viestinkirjoittaja'>Kirjoittaja: ".$row["Kayttajanimi"]."</p>
                 <p class='viestindatetime'>PVM: ".date_format($date,'d.m.Y H:i:s')."</p>
                 <p class='viesti'>Viesti: </br>".$row["Viesti"]."</p>

@@ -1,15 +1,19 @@
 <?php
+include_once("config.php");
 session_start();
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
 }
+$id = $_SESSION["KayttajaID"];
+
+$profiiliquery = mysqli_query($conn, "SELECT * FROM kayttajat WHERE KayttajaID = '$id'");
 
 ?>
 <!doctype html>
 <html>
 <head>
-<title>tmForum - Valikko</title>
+<title>tmForum - Profiili</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/tyyli.css">
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
@@ -23,6 +27,18 @@ if(!isset($_SESSION["KayttajaID"])){
             <li style="float: right;"><a href="ulos.php">Kirjaudu ulos</a></li>
         </ul>
     </div>
-    <?php include("langat.php"); ?>
+    <div id="profiili">
+<?php
+
+if(mysqli_num_rows($profiiliquery) > 0){
+    while($row = mysqli_fetch_assoc($profiiliquery)){
+        echo "<img src='".$row["Kuva"]."'/>
+        <h2>".$row["Kayttajanimi"]."</h2>
+        ";
+    }
+}
+
+?>
+    </div>
 </body>
 </html>
