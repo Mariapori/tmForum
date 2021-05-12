@@ -18,9 +18,11 @@ if(mysqli_num_rows($query) > 0){
 }else{
     echo "<ul id='langat'><li>Ei lankoja.</li></ul>";
 }
+
 echo "</div>";
-echo "<span>Langan nimi: <input id='LanganNimi'/> <button onclick='UusiLanka()'>Luo</button></span>
+echo "<span style='padding: 15px;margin: 0 auto;background-color: #dc7a7a;display: block;max-width: 470px;'>Langan nimi: <input id='LanganNimi'/> <button onclick='UusiLanka()'>Luo</button></span>
 </div>";
+
 
 ?>
 
