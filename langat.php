@@ -19,7 +19,7 @@ if(mysqli_num_rows($query) > 0){
     echo "<ul id='langat'><li>Ei lankoja.</li></ul>";
 }
 echo "</div>";
-echo "<span>Langan nimi: <textarea id='LanganNimi'></textarea> <button onclick='UusiLanka()'>Luo</button></span>
+echo "<span>Langan nimi: <input id='LanganNimi'/> <button onclick='UusiLanka()'>Luo</button></span>
 </div>";
 
 ?>
