@@ -19,4 +19,27 @@ if(mysqli_num_rows($query) > 0){
     echo "<ul id='langat'><li>Ei lankoja.</li></ul>";
 }
 echo "</div>";
+echo "<span>Langan nimi: <textarea id='LanganNimi'></textarea> <button onclick='UusiLanka()'>Luo</button></span>
+</div>";
+
 ?>
+
+<script>
+function UusiLanka(){
+    var lanka = $("#LanganNimi").val();
+    $.ajax({
+        url : "uusilanka.php",
+        type : "POST",
+        data : {
+            "LanganNimi" : lanka
+        }
+    }).done(function(data){
+        if(data == 1){
+            window.location.reload();
+        }else{
+            alert(data);
+        }
+        
+    });
+}
+</script>
