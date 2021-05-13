@@ -8,19 +8,29 @@ $salasana = mysqli_escape_string($conn, $_POST["salasana"]);
 $kryptatty = crypt($salasana, "ABCD1234");
 
 $rooli = "Normaali";
+$olemassa = false;
 
 $result = mysqli_query($conn, "SELECT * From kayttajat");
 if(mysqli_num_rows($result) == 0){
     $rooli = "Admin";
+}else{
+    while($row = mysqli_fetch_assoc($result)){
+        if($kayttaja == $row["Kayttajanimi"]){
+            $olemassa = true;
+        }
+    }
 }
 
-$tulos = mysqli_query($conn, "INSERT INTO kayttajat (Kayttajanimi, Salasana, Rooli)
-VALUES ('$kayttaja', '$kryptatty', '$rooli');");
-
-if($tulos === true){
-    echo 1;
+if(!$olemassa){
+    $tulos = mysqli_query($conn, "INSERT INTO kayttajat (Kayttajanimi, Salasana, Rooli)
+    VALUES ('$kayttaja', '$kryptatty', '$rooli');");
+    if($tulos === true){
+        echo 1;
+    }else{
+        echo "Jokin meni vituiksi!";
+    }
 }else{
-    echo "Jokin meni vituiksi!";
+    echo "Käyttäjänimi varattu!";
 }
 
 ?>
