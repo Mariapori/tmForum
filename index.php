@@ -47,7 +47,6 @@ function Login(){
         }
     }).done(function(data){
         if(data == 1){
-            alert("Käyttäjän luonti onnistui!");
             window.location = "menu.php";
         }else{
             $("#error").text(data);
@@ -68,6 +67,7 @@ function Register(){
         }
     }).done(function(data){
         if(data == 1){
+            alert("Käyttäjän luonti onnistui!");
             window.location = "menu.php";
         }else{
             $("#error").text(data);
