@@ -39,6 +39,7 @@ if(mysqli_num_rows($profiiliquery) > 0){
 }
 
 ?>
+    <a href="poistakayttaja.php">Poista käyttäjä</a>
     </div>
 </body>
 </html>
