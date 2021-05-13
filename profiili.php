@@ -6,7 +6,7 @@ if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
 }
 $id = $_SESSION["KayttajaID"];
-
+$profiilikuva = "";
 $profiiliquery = mysqli_query($conn, "SELECT * FROM kayttajat WHERE KayttajaID = '$id'");
 
 ?>
@@ -32,6 +32,7 @@ $profiiliquery = mysqli_query($conn, "SELECT * FROM kayttajat WHERE KayttajaID =
 
 if(mysqli_num_rows($profiiliquery) > 0){
     while($row = mysqli_fetch_assoc($profiiliquery)){
+        $profiilikuva = $row["Kuva"];
         echo "<img src='".$row["Kuva"]."'/>
         <h2>".$row["Kayttajanimi"]."</h2>
         ";
@@ -39,7 +40,31 @@ if(mysqli_num_rows($profiiliquery) > 0){
 }
 
 ?>
-    <a href="poistakayttaja.php">Poista käyttäjä</a>
+<div id="profiiliToiminnot">
+    <p>Profiilikuva:</p>
+    <input id="kuvanurl" value="<?php echo $profiilikuva; ?>"> <button onclick="VaihdaKuva()">Vaihda</button><br>
+    <a style="border: 1px solid black; border-radius: 45px; padding: 10px;margin: 10px; display: inline-block; max-width: 100px;"href="poistakayttaja.php">Poista käyttäjä</a>
+</div>
     </div>
 </body>
 </html>
+
+<script>
+function VaihdaKuva(){
+    var kuvaurl = $("#kuvanurl").val();
+    var id = <?php echo $id; ?>;
+
+    $.ajax({
+        url: "paivitakuva.php",
+        type: "POST",
+        data: {
+            "kuvanurl" : kuvaurl,
+            "id" : id
+        }
+    }).done(function(data){
+        if(data == 1){
+            window.location.reload();
+        }
+    });
+}
+</script>

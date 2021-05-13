@@ -116,6 +116,7 @@ body {
 }
 #lankaviestit span textarea {
     width: 100%;
+    box-sizing: border-box;
 }
 .lankaviesti img {
     width: 100%;
@@ -141,4 +142,13 @@ hr{
     margin: 0 auto;
     display: block;
     padding: 15px;
+}
+#profiiliToiminnot a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+#profiiliToiminnot input {
+    width: 100%;
+    box-sizing: border-box;
 }

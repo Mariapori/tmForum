@@ -5,6 +5,9 @@ include_once("config.php");
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
 }
+if(!isset($_POST["LanganNimi"])){
+    header("Location: index.php");
+}
 
 $msg = mysqli_escape_string($conn,$_POST["LanganNimi"]);
 $kirjoittaja = $_SESSION["KayttajaID"];
