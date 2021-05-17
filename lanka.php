@@ -5,6 +5,9 @@ include_once("config.php");
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
 }
+
+$ktid = $_SESSION["KayttajaID"];
+
 if($_GET["id"] == null || $_GET["id"] == ""){
     header("Location: menu.php");
 }else{
@@ -17,6 +20,16 @@ if($_GET["id"] == null || $_GET["id"] == ""){
 }else{
     header("Location: menu.php");
 }
+}
+
+$admin = false;
+$adminquery = mysqli_query($conn,"SELECT * FROM kayttajat WHERE KayttajaID = '$ktid'");
+if(mysqli_num_rows($adminquery) > 0){
+    while($row = mysqli_fetch_assoc($adminquery)){
+        if($row["Rooli"] == "Admin"){
+            $admin = true;
+        }
+    }
 }
 
 ?>
@@ -47,12 +60,22 @@ if($_GET["id"] == null || $_GET["id"] == ""){
         if(mysqli_num_rows($viestit) > 0){
             while($row = mysqli_fetch_assoc($viestit)){
                 $date = date_create($row["PVM"]);
-                echo "<li><div class='lankaviesti'>
-                <img src='".$row["Kuva"]."' alt='Käyttäjän ".$row["Kayttajanimi"]." profiilikuva' />
-                <p class='viestinkirjoittaja'>Kirjoittaja: ".$row["Kayttajanimi"]."</p>
-                <p class='viestindatetime'>PVM: ".date_format($date,'d.m.Y H:i:s')."</p>
-                <p class='viesti'>Viesti: </br>".$row["Viesti"]."</p>
-                </div></li>";
+                if($row["Kirjoittaja"] == $_SESSION["KayttajaID"] || $admin == true){
+                    echo"<li><div class='lankaviesti'>
+                    <img src='".$row["Kuva"]."' alt='Käyttäjän ".$row["Kayttajanimi"]." profiilikuva' />
+                    <p class='viestinkirjoittaja'>Kirjoittaja: ".$row["Kayttajanimi"]."</p>
+                    <p class='viestindatetime'>PVM: ".date_format($date,'d.m.Y H:i:s')."</p>
+                    <p class='viesti'>Viesti: </br>".$row["Viesti"]."</p>
+                    <button onclick='PoistaViesti(".$row["ViestiID"].")'>Poista viesti</button>
+                    </div></li>";
+                }else{
+                    echo"<li><div class='lankaviesti'>
+                    <img src='".$row["Kuva"]."' alt='Käyttäjän ".$row["Kayttajanimi"]." profiilikuva' />
+                    <p class='viestinkirjoittaja'>Kirjoittaja: ".$row["Kayttajanimi"]."</p>
+                    <p class='viestindatetime'>PVM: ".date_format($date,'d.m.Y H:i:s')."</p>
+                    <p class='viesti'>Viesti: </br>".$row["Viesti"]."</p>
+                    </div></li>";
+                }
             }
         }
         ?>
@@ -73,6 +96,23 @@ function Kirjoita(){
         data : {
             "LankaID" : id,
             "Viesti" : viesti
+        }
+    }).done(function(data){
+        if(data == 1){
+            window.location.reload();
+        }else{
+            alert(data);
+        }
+        
+    });
+}
+
+function PoistaViesti(id){
+    $.ajax({
+        url : "poistaviesti.php",
+        type : "POST",
+        data : {
+            "ViestiID" : id
         }
     }).done(function(data){
         if(data == 1){
