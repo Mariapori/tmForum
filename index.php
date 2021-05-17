@@ -18,10 +18,10 @@ if(isset($_SESSION["KayttajaID"])){
 <div id="kirjautuminen">
 <table>
 <tr>
-<td><input id="kayttaja" placeholder="Käyttäjätunnus"></td>
+<td><input id="kayttaja" placeholder="Käyttäjätunnus" required="true"></td>
 </tr>
 <tr>
-<td><input id="salasana" placeholder="Salasana" type="password"></td>
+<td><input id="salasana" placeholder="Salasana" type="password" required="true"></td>
 </tr>
 <tr>
 <td><button onclick="Login()">Kirjaudu</button><button onclick="Register()">Luo tunnus</button></td>
@@ -38,7 +38,7 @@ function Login(){
     var kayttaja = $("#kayttaja").val();
     var salasana = $("#salasana").val();
 
-    $.ajax({
+        $.ajax({
         url : "login.php",
         type : "POST",
         data : {
