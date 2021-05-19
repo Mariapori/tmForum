@@ -7,6 +7,7 @@ if(!isset($_SESSION["KayttajaID"])){
 }
 $id = $_SESSION["KayttajaID"];
 $profiilikuva = "";
+$sposti = "";
 $profiiliquery = mysqli_query($conn, "SELECT * FROM kayttajat WHERE KayttajaID = '$id'");
 
 ?>
@@ -33,6 +34,7 @@ $profiiliquery = mysqli_query($conn, "SELECT * FROM kayttajat WHERE KayttajaID =
 if(mysqli_num_rows($profiiliquery) > 0){
     while($row = mysqli_fetch_assoc($profiiliquery)){
         $profiilikuva = $row["Kuva"];
+        $sposti = $row["Sposti"];
         echo "<img src='".$row["Kuva"]."'/>
         <h2>".$row["Kayttajanimi"]."</h2>
         ";
@@ -43,6 +45,8 @@ if(mysqli_num_rows($profiiliquery) > 0){
 <div id="profiiliToiminnot">
     <p>Profiilikuva:</p>
     <input id="kuvanurl" value="<?php echo $profiilikuva; ?>"> <button onclick="VaihdaKuva()">Vaihda</button><br>
+    <p>Sähköposti:</p>
+    <input id="sposti" value="<?php echo $sposti; ?>"> <button onclick="VaihdaSposti()">Vaihda</button><br>
     <a style="border: 1px solid black; border-radius: 45px; padding: 10px;margin: 10px; display: inline-block; max-width: 100px;"href="poistakayttaja.php">Poista käyttäjä</a>
 </div>
     </div>
@@ -59,6 +63,24 @@ function VaihdaKuva(){
         type: "POST",
         data: {
             "kuvanurl" : kuvaurl,
+            "id" : id
+        }
+    }).done(function(data){
+        if(data == 1){
+            window.location.reload();
+        }
+    });
+}
+
+function VaihdaSposti(){
+    var sposti = $("#sposti").val();
+    var id = <?php echo $id; ?>;
+
+    $.ajax({
+        url: "paivitasposti.php",
+        type: "POST",
+        data: {
+            "sposti" : sposti,
             "id" : id
         }
     }).done(function(data){
