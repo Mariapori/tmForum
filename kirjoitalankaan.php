@@ -35,7 +35,7 @@ if(mysqli_num_rows($onkoposti) > 0){
     while ($row = mysqli_fetch_assoc($onkoposti)){
         if($row["Sposti"] != null && $row["Sposti"] != ""){
             if($kirjoittaja != $row["Luonut"]){
-                $path = $_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']) . 'lanka.php?id='.$lankaid;
+                $path = $_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']) . '/lanka.php?id='.$lankaid;
                 $headers[] = "From: tmForum <noreply@mariapori.fi>";
                 mail($row["Sposti"],"Uusi viesti lankaan ". $lankanimi, $kirjoittajanimi." kirjoitti: ".$msg."\r\nKatso foorumilla: ".$path,$headers);
             }
