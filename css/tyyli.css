@@ -151,4 +151,10 @@ hr{
 #profiiliToiminnot input {
     width: 100%;
     box-sizing: border-box;
+    text-align: center;
+}
+#profiiliToiminnot {
+    text-align: center;
+    max-width: 300px;
+    margin: 0 auto;
 }
