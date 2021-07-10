@@ -6,7 +6,6 @@ if(!isset($_SESSION["KayttajaID"])){
 }
 
 ?>
-<!doctype html>
 <html>
 <head>
 <title>tmForum - Valikko</title>
