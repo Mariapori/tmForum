@@ -3,6 +3,7 @@ session_start();
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 
 ?>

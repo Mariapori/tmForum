@@ -4,6 +4,7 @@ include_once("config.php");
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 
 $ktid = $_SESSION["KayttajaID"];

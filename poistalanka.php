@@ -4,10 +4,12 @@ session_start();
 
 if(!isset($_POST["LankaID"])){
     header("Location: index.php");
+    exit;
 }
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 
 $admin = false;

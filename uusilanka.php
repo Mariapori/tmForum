@@ -4,9 +4,11 @@ include_once("config.php");
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 if(!isset($_POST["LanganNimi"])){
     header("Location: index.php");
+    exit;
 }
 
 $msg = mysqli_escape_string($conn,$_POST["LanganNimi"]);

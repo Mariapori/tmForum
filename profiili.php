@@ -4,6 +4,7 @@ session_start();
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 $id = $_SESSION["KayttajaID"];
 $profiilikuva = "";

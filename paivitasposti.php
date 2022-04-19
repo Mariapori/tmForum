@@ -4,9 +4,11 @@ session_start();
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 if(!isset($_POST["sposti"])){
     header("Location: index.php");
+    exit;
 }
 
 $sposti = mysqli_escape_string($conn,$_POST["sposti"]);
