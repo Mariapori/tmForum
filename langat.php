@@ -23,7 +23,7 @@ if(mysqli_num_rows($query) > 0){
     echo "<ul id='langat'>";
     while($row = mysqli_fetch_assoc($query)){
         $date = date_create($row["PVM"]);
-        echo "<li><div class='lankalistassa'> <a href='lanka.php?id=".$row["LankaID"]."'>".$row["Nimi"]."</a><p>Luonut: ".$row["Kayttajanimi"]." | ".date_format($date,'d.m.Y')."";
+        echo "<li><div class='lankalistassa'> <a href='lanka.php?id=".htmlspecialchars($row["LankaID"])."'>".htmlspecialchars($row["Nimi"])."</a><p>Luonut: ".htmlspecialchars($row["Kayttajanimi"])." | ".date_format($date,'d.m.Y')."";
         if($_SESSION["KayttajaID"] == $row["Luonut"] || $admin == true){
             echo "<br><button onclick='PoistaLanka(".$row["LankaID"].")'>Poista lanka</button> </div></li>";
         }else{
