@@ -3,6 +3,7 @@ include_once("config.php");
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
+    exit;
 }
 $id = $_SESSION["KayttajaID"];
 $admin = false;
