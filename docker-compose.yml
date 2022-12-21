@@ -1,0 +1,19 @@
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+      MARIADB_DATABASE: tmforum
+    volumes:
+      - ./createdatabase.sql:/docker-entrypoint-initdb.d/createdatabase.sql
+    ports:
+      - 3306:3306
+  app:
+    image: tmforum
+    build: .
+    restart: always
+    volumes:
+      - ./src/:/var/www/html/
+    ports:
+      - 80:80
