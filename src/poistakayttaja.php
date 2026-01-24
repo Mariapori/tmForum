@@ -1,19 +1,34 @@
 <?php
 include_once("config.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
     exit;
 }
 
-$id = $_SESSION["KayttajaID"];
-$poistaquery = mysqli_query($conn,"DELETE FROM kayttajat WHERE KayttajaID = '$id'");
-
-if($poistaquery){
-    session_destroy();
-    session_unset();
+if(!isset($_POST["csrf_token"])){
+    echo "Puuttuva CSRF-token.";
+    exit;
 }
 
-header("Location: index.php");
+if(!verifyToken($_POST["csrf_token"])){
+    echo "Virheellinen CSRF-token.";
+    exit;
+}
+
+$id = $_SESSION["KayttajaID"];
+
+$stmt = $conn->prepare("DELETE FROM kayttajat WHERE KayttajaID = ?");
+$stmt->bind_param("i", $id);
+
+if($stmt->execute()){
+    session_destroy();
+    session_unset();
+    echo 1;
+} else {
+    echo "Virhe poistettaessa käyttäjää.";
+}
 ?>

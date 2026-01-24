@@ -3,7 +3,7 @@ services:
     image: mariadb
     restart: always
     environment:
-      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+      MARIADB_ROOT_PASSWORD: verysecretpassword123
       MARIADB_DATABASE: tmforum
     volumes:
       - ./createdatabase.sql:/docker-entrypoint-initdb.d/createdatabase.sql

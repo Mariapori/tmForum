@@ -2,35 +2,36 @@
 include_once("config.php");
 session_start();
 
-$kayttaja = mysqli_escape_string($conn, $_POST["kayttaja"]);
-$salasana = mysqli_escape_string($conn, $_POST["salasana"]);
+$kayttaja = $_POST["kayttaja"];
+$salasana = $_POST["salasana"];
 
-$kryptatty = crypt($salasana, "ABCD1234");
+$hashed_password = password_hash($salasana, PASSWORD_DEFAULT);
 
 $rooli = "Normaali";
-$olemassa = false;
 
-$result = mysqli_query($conn, "SELECT * From kayttajat");
-if(mysqli_num_rows($result) == 0){
+// Check if admin exist
+$result = $conn->query("SELECT Count(*) as count FROM kayttajat");
+$row = $result->fetch_assoc();
+if($row['count'] == 0){
     $rooli = "Admin";
-}else{
-    while($row = mysqli_fetch_assoc($result)){
-        if($kayttaja == $row["Kayttajanimi"]){
-            $olemassa = true;
-        }
-    }
 }
 
-if(!$olemassa){
-    $tulos = mysqli_query($conn, "INSERT INTO kayttajat (Kayttajanimi, Salasana, Rooli)
-    VALUES ('$kayttaja', '$kryptatty', '$rooli');");
-    if($tulos === true){
+// Check if user exists
+$stmt = $conn->prepare("SELECT KayttajaID FROM kayttajat WHERE Kayttajanimi = ?");
+$stmt->bind_param("s", $kayttaja);
+$stmt->execute();
+$stmt->store_result();
+
+if($stmt->num_rows == 0){
+    $stmt = $conn->prepare("INSERT INTO kayttajat (Kayttajanimi, Salasana, Rooli) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $kayttaja, $hashed_password, $rooli);
+    
+    if($stmt->execute()){
         echo 1;
     }else{
-        echo "Jokin meni vituiksi!";
+        echo "Jokin meni vikaan!";
     }
 }else{
     echo "Käyttäjänimi varattu!";
 }
-
 ?>

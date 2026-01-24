@@ -8,36 +8,46 @@ if(!isset($_SESSION["KayttajaID"])){
 }
 
 $ktid = $_SESSION["KayttajaID"];
+$csrf_token = generateToken();
 
-if($_GET["id"] == null || $_GET["id"] == ""){
+if(empty($_GET["id"])){
     header("Location: menu.php");
-}else{
-    $id = mysqli_real_escape_string($conn,$_GET["id"]);
-    $lankaquery = mysqli_query($conn, "SELECT Nimi from langat WHERE LankaID = '$id'");
-    if(mysqli_num_rows($lankaquery) > 0){
-        while($row = mysqli_fetch_assoc($lankaquery)){
-            $lankanimi = $row["Nimi"];
-        }
-}else{
-    header("Location: menu.php");
+    exit;
 }
+
+$id = $_GET["id"];
+$lankanimi = "";
+
+$stmt = $conn->prepare("SELECT Nimi from langat WHERE LankaID = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($result->num_rows > 0){
+    $row = $result->fetch_assoc();
+    $lankanimi = $row["Nimi"];
+}else{
+    header("Location: menu.php");
+    exit;
 }
 
 $admin = false;
-$adminquery = mysqli_query($conn,"SELECT * FROM kayttajat WHERE KayttajaID = '$ktid'");
-if(mysqli_num_rows($adminquery) > 0){
-    while($row = mysqli_fetch_assoc($adminquery)){
-        if($row["Rooli"] == "Admin"){
-            $admin = true;
-        }
+$stmt_admin = $conn->prepare("SELECT Rooli FROM kayttajat WHERE KayttajaID = ?");
+$stmt_admin->bind_param("i", $ktid);
+$stmt_admin->execute();
+$res_admin = $stmt_admin->get_result();
+
+if($res_admin->num_rows > 0){
+    $row = $res_admin->fetch_assoc();
+    if($row["Rooli"] == "Admin"){
+        $admin = true;
     }
 }
-
 ?>
 <!doctype html>
 <html>
 <head>
-<title>tmForum - <?php echo $lankanimi; ?></title>
+<title>tmForum - <?php echo htmlspecialchars($lankanimi); ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/tyyli.css">
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
@@ -52,36 +62,40 @@ if(mysqli_num_rows($adminquery) > 0){
         </ul>
     </div>
     <?php
-    echo "<h2 style='margin: 0 auto;max-width: 480px;background-color: #dfdfdfbd;padding: 10px;'>Langan ".$lankanimi." viestit</h2>";
+    echo "<h2 style='margin: 0 auto;max-width: 480px;background-color: #dfdfdfbd;padding: 10px;'>Langan ".htmlspecialchars($lankanimi)." viestit</h2>";
     ?>
     <div id="lankaviestit">
     <ul>
         <?php
-        $viestit = mysqli_query($conn,"SELECT *, k.Kayttajanimi FROM langanviestit LEFT JOIN kayttajat k on k.KayttajaID = Kirjoittaja WHERE Lanka = '$id'");
-        if(mysqli_num_rows($viestit) > 0){
-            while($row = mysqli_fetch_assoc($viestit)){
+        $stmt_msgs = $conn->prepare("SELECT v.*, k.Kayttajanimi, k.Kuva FROM langanviestit v LEFT JOIN kayttajat k on k.KayttajaID = v.Kirjoittaja WHERE v.Lanka = ?");
+        $stmt_msgs->bind_param("i", $id);
+        $stmt_msgs->execute();
+        $viestit = $stmt_msgs->get_result();
+        
+        if($viestit->num_rows > 0){
+            while($row = $viestit->fetch_assoc()){
                 $date = date_create($row["PVM"]);
+                $kayttajanimi = htmlspecialchars($row["Kayttajanimi"]);
+                $kuva = htmlspecialchars($row["Kuva"]);
+                $viesti = nl2br(htmlspecialchars($row["Viesti"]));
+                $pvm = date_format($date,'d.m.Y H:i:s');
+                
+                echo"<li><div class='lankaviesti'>
+                <img src='".$kuva."' alt='Käyttäjän ".$kayttajanimi." profiilikuva' />
+                <p class='viestinkirjoittaja'>Kirjoittaja: ".$kayttajanimi."</p>
+                <p class='viestindatetime'>PVM: ".$pvm."</p>
+                <p class='viesti'>Viesti: </br>".$viesti."</p>";
+                
                 if($row["Kirjoittaja"] == $_SESSION["KayttajaID"] || $admin == true){
-                    echo"<li><div class='lankaviesti'>
-                    <img src='".$row["Kuva"]."' alt='Käyttäjän ".$row["Kayttajanimi"]." profiilikuva' />
-                    <p class='viestinkirjoittaja'>Kirjoittaja: ".$row["Kayttajanimi"]."</p>
-                    <p class='viestindatetime'>PVM: ".date_format($date,'d.m.Y H:i:s')."</p>
-                    <p class='viesti'>Viesti: </br>".$row["Viesti"]."</p>
-                    <button onclick='PoistaViesti(".$row["ViestiID"].")'>Poista viesti</button>
-                    </div></li>";
-                }else{
-                    echo"<li><div class='lankaviesti'>
-                    <img src='".$row["Kuva"]."' alt='Käyttäjän ".$row["Kayttajanimi"]." profiilikuva' />
-                    <p class='viestinkirjoittaja'>Kirjoittaja: ".$row["Kayttajanimi"]."</p>
-                    <p class='viestindatetime'>PVM: ".date_format($date,'d.m.Y H:i:s')."</p>
-                    <p class='viesti'>Viesti: </br>".$row["Viesti"]."</p>
-                    </div></li>";
+                    echo "<button onclick='PoistaViesti(".$row["ViestiID"].")'>Poista viesti</button>";
                 }
+                echo "</div></li>";
             }
         }
         ?>
     </ul>
-    <?php echo "<input id='lankaid' value='".$id."' hidden/>" ?>
+    <input id='lankaid' value='<?php echo htmlspecialchars($id); ?>' hidden/>
+    <input id='csrf_token' value='<?php echo $csrf_token; ?>' hidden/>
     <span>Kirjoita: <textarea id="txtLanka"></textarea> <button onclick="Kirjoita()">Lähetä</button></span>
     </div>
 </body>
@@ -91,12 +105,14 @@ if(mysqli_num_rows($adminquery) > 0){
 function Kirjoita(){
     var viesti = $("#txtLanka").val();
     var id = $("#lankaid").val();
+    var token = $("#csrf_token").val();
     $.ajax({
         url : "kirjoitalankaan.php",
         type : "POST",
         data : {
             "LankaID" : id,
-            "Viesti" : viesti
+            "Viesti" : viesti,
+            "csrf_token" : token
         }
     }).done(function(data){
         if(data == 1){
@@ -109,11 +125,13 @@ function Kirjoita(){
 }
 
 function PoistaViesti(id){
+    var token = $("#csrf_token").val();
     $.ajax({
         url : "poistaviesti.php",
         type : "POST",
         data : {
-            "ViestiID" : id
+            "ViestiID" : id,
+            "csrf_token" : token
         }
     }).done(function(data){
         if(data == 1){

@@ -2,7 +2,7 @@
 include_once("config.php");
 session_start();
 
-if(!isset($_POST["LankaID"])){
+if(!isset($_POST["LankaID"]) || !isset($_POST["csrf_token"])){
     header("Location: index.php");
     exit;
 }
@@ -12,33 +12,42 @@ if(!isset($_SESSION["KayttajaID"])){
     exit;
 }
 
+if(!verifyToken($_POST["csrf_token"])){
+    echo "Virheellinen CSRF-token.";
+    exit;
+}
+
 $admin = false;
 
 $id = $_SESSION["KayttajaID"];
-$lanka = mysqli_escape_string($conn,$_POST["LankaID"]);
+$lanka = $_POST["LankaID"];
 
-$adminquery = mysqli_query($conn,"SELECT * FROM kayttajat WHERE KayttajaID = '$id'");
-if(mysqli_num_rows($adminquery) > 0){
-    while($row = mysqli_fetch_assoc($adminquery)){
-        if($row["Rooli"] == "Admin"){
-            $admin = true;
-        }
+$stmt_admin = $conn->prepare("SELECT Rooli FROM kayttajat WHERE KayttajaID = ?");
+$stmt_admin->bind_param("i", $id);
+$stmt_admin->execute();
+$res_admin = $stmt_admin->get_result();
+
+if($res_admin->num_rows > 0){
+    $row = $res_admin->fetch_assoc();
+    if($row["Rooli"] == "Admin"){
+        $admin = true;
     }
 }
 
-$poistaquery = false;
+$stmt_del = false;
 
 if($admin == true){
-    $poistaquery = mysqli_query($conn,"DELETE FROM langat WHERE LankaID = '$lanka'");
+    $stmt_del = $conn->prepare("DELETE FROM langat WHERE LankaID = ?");
+    $stmt_del->bind_param("i", $lanka);
 }else{
-    $poistaquery = mysqli_query($conn,"DELETE FROM langat WHERE Luonut = '$id' AND LankaID = '$lanka'");
+    $stmt_del = $conn->prepare("DELETE FROM langat WHERE Luonut = ? AND LankaID = ?");
+    $stmt_del->bind_param("ii", $id, $lanka);
 }
 
 
-if($poistaquery == true){
+if($stmt_del->execute() && $stmt_del->affected_rows > 0){
     echo 1;
 }else{
     echo "Et voi poistaa!";
 }
-
 ?>

@@ -6,41 +6,58 @@ if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
     exit;
 }
-if(!isset($_POST["LankaID"])){
-    header("Location: index.php");
-    exit;
-}
-if(!isset($_POST["Viesti"])){
+if(!isset($_POST["LankaID"]) || !isset($_POST["Viesti"]) || !isset($_POST["csrf_token"])){
     header("Location: index.php");
     exit;
 }
 
-$lankaid = mysqli_escape_string($conn,$_POST["LankaID"]);
-$msg = mysqli_escape_string($conn,$_POST["Viesti"]);
+if(!verifyToken($_POST["csrf_token"])){
+    echo "Virheellinen CSRF-token.";
+    exit;
+}
+
+$lankaid = $_POST["LankaID"];
+$msg = $_POST["Viesti"];
 $kirjoittaja = $_SESSION["KayttajaID"];
-$date = date('Y-m-d H:i:s');
-$result = mysqli_query($conn,"INSERT INTO langanviestit (Lanka,Viesti,Kirjoittaja) VALUES ('$lankaid','$msg','$kirjoittaja');");
-$kirjoittajanimisql = mysqli_query($conn, "SELECT Kayttajanimi FROM kayttajat WHERE KayttajaID = '$kirjoittaja'");
-$kirjoittajanimi = "";
 
-$lankanimisql = mysqli_query($conn, "SELECT Nimi FROM langat WHERE LankaID = '$lankaid'");
-$lankanimi = "";
+// Insert message
+$stmt = $conn->prepare("INSERT INTO langanviestit (Lanka, Viesti, Kirjoittaja) VALUES (?, ?, ?)");
+$stmt->bind_param("isi", $lankaid, $msg, $kirjoittaja);
+$result = $stmt->execute();
 
-while($rivi = mysqli_fetch_assoc($kirjoittajanimisql)){
-    $kirjoittajanimi = $rivi["Kayttajanimi"];
-}
-while($rivi2 = mysqli_fetch_assoc($lankanimisql)){
-    $lankanimi = $rivi2["Nimi"];
-}
+// Fetch writer name
+$stmt_writer = $conn->prepare("SELECT Kayttajanimi FROM kayttajat WHERE KayttajaID = ?");
+$stmt_writer->bind_param("i", $kirjoittaja);
+$stmt_writer->execute();
+$res_writer = $stmt_writer->get_result();
+$kirjoittajanimi = $res_writer->fetch_assoc()["Kayttajanimi"];
 
-$onkoposti = mysqli_query($conn,"SELECT * FROM langat LEFT JOIN kayttajat k on k.KayttajaID = Luonut WHERE LankaID = '$lankaid'");
-if(mysqli_num_rows($onkoposti) > 0){
-    while ($row = mysqli_fetch_assoc($onkoposti)){
+// Fetch thread name
+$stmt_thread = $conn->prepare("SELECT Nimi FROM langat WHERE LankaID = ?");
+$stmt_thread->bind_param("i", $lankaid);
+$stmt_thread->execute();
+$res_thread = $stmt_thread->get_result();
+$lankanimi = $res_thread->fetch_assoc()["Nimi"];
+
+// Email notification
+$stmt_owner = $conn->prepare("SELECT k.Sposti, l.Luonut FROM langat l LEFT JOIN kayttajat k on k.KayttajaID = l.Luonut WHERE l.LankaID = ?");
+$stmt_owner->bind_param("i", $lankaid);
+$stmt_owner->execute();
+$res_owner = $stmt_owner->get_result();
+
+if($res_owner->num_rows > 0){
+    while ($row = $res_owner->fetch_assoc()){
         if($row["Sposti"] != null && $row["Sposti"] != ""){
             if($kirjoittaja != $row["Luonut"]){
                 $path = $_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']) . '/lanka.php?id='.$lankaid;
+                $headers = array();
                 $headers[] = "From: tmForum <noreply@mariapori.fi>";
-                mail($row["Sposti"],"Uusi viesti lankaan ". $lankanimi, $kirjoittajanimi." kirjoitti: ".$msg."\r\nKatso foorumilla: ".$path,$headers);
+                $headers[] = "Content-Type: text/plain; charset=UTF-8";
+                
+                // Sanitize headers to prevent injection (though mail() is generally safer with modern PHP, good practice)
+                $safe_lankanimi = str_replace(array("\r", "\n"), '', $lankanimi);
+                
+                mail($row["Sposti"],"Uusi viesti lankaan ". $safe_lankanimi, $kirjoittajanimi." kirjoitti: ".$msg."\r\nKatso foorumilla: ".$path, implode("\r\n", $headers));
             }
         }
     }
@@ -51,5 +68,4 @@ if($result === true){
 }else{
     echo "Jokin meni pieleen.";
 }
-
 ?>

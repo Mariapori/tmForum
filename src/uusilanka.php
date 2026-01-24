@@ -6,19 +6,25 @@ if(!isset($_SESSION["KayttajaID"])){
     header("Location: index.php");
     exit;
 }
-if(!isset($_POST["LanganNimi"])){
+if(!isset($_POST["LanganNimi"]) || !isset($_POST["csrf_token"])){
     header("Location: index.php");
     exit;
 }
 
-$msg = mysqli_escape_string($conn,$_POST["LanganNimi"]);
+if(!verifyToken($_POST["csrf_token"])){
+    echo "Virheellinen CSRF-token.";
+    exit;
+}
+
+$msg = $_POST["LanganNimi"];
 $kirjoittaja = $_SESSION["KayttajaID"];
-$date = date('Y-m-d H:i:s');
-$result = mysqli_query($conn,"INSERT INTO langat (Nimi,Luonut) VALUES ('$msg','$kirjoittaja');");
-if($result === true){
+
+$stmt = $conn->prepare("INSERT INTO langat (Nimi, Luonut) VALUES (?, ?)");
+$stmt->bind_param("si", $msg, $kirjoittaja);
+
+if($stmt->execute()){
     echo 1;
 }else{
     echo "Jokin meni pieleen.";
 }
-
 ?>

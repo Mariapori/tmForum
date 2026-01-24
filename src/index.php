@@ -1,4 +1,5 @@
 <?php
+include_once("config.php");
 session_start();
 
 if(isset($_SESSION["KayttajaID"])){
@@ -6,6 +7,7 @@ if(isset($_SESSION["KayttajaID"])){
     exit;
 }
 
+$csrf_token = generateToken();
 ?>
 <!doctype html>
 <html>
@@ -29,6 +31,7 @@ if(isset($_SESSION["KayttajaID"])){
 </tr>
 </table>
 <p id="error"></p>
+<input id="csrf_token" value="<?php echo $csrf_token; ?>" hidden />
 </div>
 </body>
 </html>
@@ -38,8 +41,8 @@ if(isset($_SESSION["KayttajaID"])){
 function Login(){
     var kayttaja = $("#kayttaja").val();
     var salasana = $("#salasana").val();
-
-        $.ajax({
+    
+    $.ajax({
         url : "login.php",
         type : "POST",
         data : {
@@ -58,7 +61,7 @@ function Login(){
 function Register(){
     var kayttaja = $("#kayttaja").val();
     var salasana = $("#salasana").val();
-
+    
     $.ajax({
         url : "register.php",
         type : "POST",
