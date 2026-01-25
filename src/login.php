@@ -1,9 +1,16 @@
 <?php
 include_once("config.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $kayttaja = $_POST["kayttaja"];
 $salasana = $_POST["salasana"];
+
+if(!isset($_POST["csrf_token"]) || !verifyToken($_POST["csrf_token"])){
+    echo "Virheellinen CSRF-token.";
+    exit;
+}
 
 $stmt = $conn->prepare("SELECT KayttajaID, Salasana FROM kayttajat WHERE Kayttajanimi = ?");
 $stmt->bind_param("s", $kayttaja);

@@ -47,7 +47,7 @@ if($res_admin->num_rows > 0){
 <!doctype html>
 <html>
 <head>
-<title>tmForum - <?php echo htmlspecialchars($lankanimi); ?></title>
+<title>tmForum - <?php echo htmlspecialchars($lankanimi ?? ""); ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/tyyli.css">
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
@@ -62,7 +62,7 @@ if($res_admin->num_rows > 0){
         </ul>
     </div>
     <?php
-    echo "<h2 style='margin: 0 auto;max-width: 480px;background-color: #dfdfdfbd;padding: 10px;'>Langan ".htmlspecialchars($lankanimi)." viestit</h2>";
+    echo "<h2 style='margin: 0 auto;max-width: 480px;background-color: #dfdfdfbd;padding: 10px;'>Langan ".htmlspecialchars($lankanimi ?? "")." viestit</h2>";
     ?>
     <div id="lankaviestit">
     <ul>
@@ -75,9 +75,9 @@ if($res_admin->num_rows > 0){
         if($viestit->num_rows > 0){
             while($row = $viestit->fetch_assoc()){
                 $date = date_create($row["PVM"]);
-                $kayttajanimi = htmlspecialchars($row["Kayttajanimi"]);
-                $kuva = htmlspecialchars($row["Kuva"]);
-                $viesti = nl2br(htmlspecialchars($row["Viesti"]));
+                $kayttajanimi = htmlspecialchars($row["Kayttajanimi"] ?? "");
+                $kuva = htmlspecialchars($row["Kuva"] ?? "");
+                $viesti = nl2br(htmlspecialchars($row["Viesti"] ?? ""));
                 $pvm = date_format($date,'d.m.Y H:i:s');
                 
                 echo"<li><div class='lankaviesti'>
@@ -94,7 +94,7 @@ if($res_admin->num_rows > 0){
         }
         ?>
     </ul>
-    <input id='lankaid' value='<?php echo htmlspecialchars($id); ?>' hidden/>
+    <input id='lankaid' value='<?php echo htmlspecialchars($id ?? ""); ?>' hidden/>
     <input id='csrf_token' value='<?php echo $csrf_token; ?>' hidden/>
     <span>Kirjoita: <textarea id="txtLanka"></textarea> <button onclick="Kirjoita()">Lähetä</button></span>
     </div>

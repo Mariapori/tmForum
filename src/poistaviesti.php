@@ -1,6 +1,8 @@
 <?php
 include_once("config.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if(!isset($_POST["ViestiID"]) || !isset($_POST["csrf_token"])){
     header("Location: index.php");

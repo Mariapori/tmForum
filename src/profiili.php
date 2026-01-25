@@ -47,15 +47,15 @@ if($result->num_rows > 0){
     </div>
     <div id="profiili">
     <?php
-        echo "<img src='".htmlspecialchars($profiilikuva)."'/>
-        <h2>".htmlspecialchars($kayttajanimi)."</h2>
+        echo "<img src='".htmlspecialchars($profiilikuva ?? "")."'/>
+        <h2>".htmlspecialchars($kayttajanimi ?? "")."</h2>
         ";
     ?>
     <div id="profiiliToiminnot">
         <p>Profiilikuva:</p>
-        <input id="kuvanurl" value="<?php echo htmlspecialchars($profiilikuva); ?>"> <button onclick="VaihdaKuva()">Vaihda</button><br>
+        <input id="kuvanurl" value="<?php echo htmlspecialchars($profiilikuva ?? ""); ?>"> <button onclick="VaihdaKuva()">Vaihda</button><br>
         <p>Sähköposti:</p>
-        <input id="sposti" value="<?php echo htmlspecialchars($sposti); ?>"> <button onclick="VaihdaSposti()">Vaihda</button><br>
+        <input id="sposti" value="<?php echo htmlspecialchars($sposti ?? ""); ?>"> <button onclick="VaihdaSposti()">Vaihda</button><br>
         <button style="border: 1px solid black; border-radius: 45px; padding: 10px;margin: 10px; display: inline-block; max-width: 150px; background: red; color: white; cursor: pointer;" onclick="PoistaKayttaja()">Poista käyttäjä</button>
         <input id="csrf_token" value="<?php echo $csrf_token; ?>" hidden>
     </div>

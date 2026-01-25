@@ -1,6 +1,8 @@
 <?php
 include_once("config.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if(isset($_SESSION["KayttajaID"])){
     header("Location: menu.php");
@@ -42,12 +44,15 @@ function Login(){
     var kayttaja = $("#kayttaja").val();
     var salasana = $("#salasana").val();
     
+    var token = $("#csrf_token").val();
+    
     $.ajax({
         url : "login.php",
         type : "POST",
         data : {
             "kayttaja" : kayttaja,
-            "salasana" : salasana
+            "salasana" : salasana,
+            "csrf_token" : token
         }
     }).done(function(data){
         if(data == 1){
@@ -62,12 +67,15 @@ function Register(){
     var kayttaja = $("#kayttaja").val();
     var salasana = $("#salasana").val();
     
+    var token = $("#csrf_token").val();
+    
     $.ajax({
         url : "register.php",
         type : "POST",
         data : {
             "kayttaja" : kayttaja,
-            "salasana" : salasana
+            "salasana" : salasana,
+            "csrf_token" : token
         }
     }).done(function(data){
         if(data == 1){
